@@ -1,103 +1,36 @@
-<p align="center">
-  <a href="https://github.com/actions/typescript-action/actions"><img alt="typescript-action status" src="https://github.com/actions/typescript-action/workflows/build-test/badge.svg"></a>
-</p>
+# No Response
 
-# Create a JavaScript Action using TypeScript
+A GitHub Action that closes Issues where the author hasn't responded to a request for more information.
 
-Use this template to bootstrap the creation of a TypeScript action.:rocket:
+## Bot Workflow
 
-This template includes compilation support, tests, a validation workflow, publishing, and versioning guidance.  
+The intent of this bot is to close issues that have not received a response to a maintainer's request for more information. Many times issues will be filed without enough information to be properly investigated. This allows maintainers to label an issue as requiring more information from the original author. If the information is not received in a timely manner, the issue will be closed. If the original author comes back and gives more information, the label is removed and the issue is reopened if necessary.
 
-If you are new, there's also a simpler introduction.  See the [Hello World JavaScript Action](https://github.com/actions/hello-world-javascript-action)
+### Scheduled
 
-## Create an action from this template
+Once per hour, it searches for issues that are:
 
-Click the `Use this Template` and provide the new repo details for your action
+- Open
+- Have a label named the same as the `responseRequiredLabel` value in the configuration
+- The `responseRequiredLabel` was applied more than `daysUntilClose` ago
 
-## Code in Main
+For each issue found, it:
 
-Install the dependencies  
-```bash
-$ npm install
-```
+1. If `closeComment` is not `false`, posts the contents of `closeComment`
+1. Closes the issue
 
-Build the typescript and package it for distribution
-```bash
-$ npm run build && npm run package
-```
+### `issue_comment` Event
 
-Run the tests :heavy_check_mark:  
-```bash
-$ npm test
+When an `issue_comment` event is received, if all of the following are true:
 
- PASS  ./index.test.js
-  ✓ throws invalid number (3ms)
-  ✓ wait 500 ms (504ms)
-  ✓ test runs (95ms)
+- The author of the comment is the original author of the issue
+- The issue has a label named the same as the `responseRequiredLabel` value in the configuration
 
-...
-```
+It will:
 
-## Change action.yml
+1. Remove the `responseRequiredLabel`
+1. Reopen the issue if it was closed by someone other than the original author of the issue
 
-The action.yml contains defines the inputs and output for your action.
+## License
 
-Update the action.yml with your name, description, inputs and outputs for your action.
-
-See the [documentation](https://help.github.com/en/articles/metadata-syntax-for-github-actions)
-
-## Change the Code
-
-Most toolkit and CI/CD operations involve async operations so the action is run in an async function.
-
-```javascript
-import * as core from '@actions/core';
-...
-
-async function run() {
-  try { 
-      ...
-  } 
-  catch (error) {
-    core.setFailed(error.message);
-  }
-}
-
-run()
-```
-
-See the [toolkit documentation](https://github.com/actions/toolkit/blob/master/README.md#packages) for the various packages.
-
-## Publish to a distribution branch
-
-Actions are run from GitHub repos so we will checkin the packed dist folder. 
-
-Then run [ncc](https://github.com/zeit/ncc) and push the results:
-```bash
-$ npm run package
-$ git add dist
-$ git commit -a -m "prod dependencies"
-$ git push origin releases/v1
-```
-
-Note: We recommend using the `--license` option for ncc, which will create a license file for all of the production node modules used in your project.
-
-Your action is now published! :rocket: 
-
-See the [versioning documentation](https://github.com/actions/toolkit/blob/master/docs/action-versioning.md)
-
-## Validate
-
-You can now validate the action by referencing `./` in a workflow in your repo (see [test.yml](.github/workflows/test.yml))
-
-```yaml
-uses: ./
-with:
-  milliseconds: 1000
-```
-
-See the [actions tab](https://github.com/actions/typescript-action/actions) for runs of this action! :rocket:
-
-## Usage:
-
-After testing you can [create a v1 tag](https://github.com/actions/toolkit/blob/master/docs/action-versioning.md) to reference the stable and latest V1 action
+[MIT](LICENSE.md)

@@ -1,28 +1,28 @@
 {
-  "name": "typescript-action",
+  "name": "no-response",
   "version": "0.0.0",
   "private": true,
-  "description": "TypeScript template action",
+  "description": "A GitHub Action that closes Issues where the author hasn't responded to a request for more information",
   "main": "lib/main.js",
   "scripts": {
-    "build": "tsc",
-    "format": "prettier --write **/*.ts",
-    "format-check": "prettier --check **/*.ts",
-    "lint": "eslint src/**/*.ts",
-    "package": "ncc build --source-map --license licenses.txt",
-    "test": "jest",
-    "all": "npm run build && npm run format && npm run lint && npm run package && npm test"
+    "build": "npx ncc build ./src/main.ts",
+    "ci": "npm run format-check && npm run lint && npm test",
+    "format": "prettier --write **/*.ts **/*.md **/*.yaml **/*.yml",
+    "format-check": "prettier --check **/*.ts **/*.md **/*.yaml **/*.yml",
+    "lint": "npx eslint src/**/*.ts",
+    "start": "npx ncc run ./src/main.ts",
+    "test": "jest"
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/actions/typescript-action.git"
+    "url": "git+https://github.com/lee-dohm/no-response.git"
   },
   "keywords": [
     "actions",
     "node",
     "setup"
   ],
-  "author": "",
+  "author": "lee-dohm",
   "license": "MIT",
   "dependencies": {
     "@actions/core": "^1.2.6"
@@ -35,6 +35,7 @@
     "eslint": "^7.13.0",
     "eslint-plugin-github": "^4.1.1",
     "eslint-plugin-jest": "^23.20.0",
+    "extract-pr-titles": "^1.1.0",
     "jest": "^24.9.0",
     "jest-circus": "^26.4.2",
     "js-yaml": "^3.14.0",
