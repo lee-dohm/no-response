@@ -15,6 +15,7 @@ interface Issue {
 }
 
 interface LabeledEvent {
+  created_at: number
   event: string
   label: {
     name: string
@@ -143,9 +144,14 @@ export default class NoResponse {
       .fromArray(issues.data.items)
       .filter(async (issue) => {
         const event = await this.findLastLabeledEvent(owner, repo, issue.number)
-        const creationDate = new Date(event.created_at)
 
-        return creationDate < labeledEarlierThan
+        if (event) {
+          const creationDate = new Date(event.created_at)
+
+          return creationDate < labeledEarlierThan
+        } else {
+          return false
+        }
       })
       .toArray()
 
