@@ -41,7 +41,7 @@
     "extract-pr-titles": "^1.1.0",
     "jest": "^24.9.0",
     "jest-circus": "^26.4.2",
-    "js-yaml": "^3.14.0",
+    "js-yaml": "^4.0.0",
     "prettier": "2.1.1",
     "ts-jest": "^24.3.0",
     "typescript": "^4.1.3"
