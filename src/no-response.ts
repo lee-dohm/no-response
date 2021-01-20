@@ -107,17 +107,11 @@ export default class NoResponse {
     }
   }
 
-  async findLastLabeledEvent(
-    owner: string,
-    repo: string,
-    number: number
-  ): Promise<LabeledEvent | undefined> {
+  async findLastLabeledEvent(issue: Issue): Promise<LabeledEvent | undefined> {
     const { responseRequiredLabel } = this.config
     const events: LabeledEventResponse[] = await this.octokit.paginate(
       ((await this.octokit.issues.listEvents({
-        owner,
-        repo,
-        issue_number: number,
+        ...issue,
         per_page: 100
       })) as unknown) as RequestInterface<object>
     )
@@ -143,7 +137,10 @@ export default class NoResponse {
     const closableIssues = scramjet
       .fromArray(issues.data.items)
       .filter(async (issue) => {
-        const event = await this.findLastLabeledEvent(owner, repo, issue.number)
+        const event = await this.findLastLabeledEvent({
+          issue_number: issue.number,
+          ...this.config.repo
+        })
 
         if (event) {
           const creationDate = new Date(event.created_at)
