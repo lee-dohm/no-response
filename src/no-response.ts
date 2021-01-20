@@ -4,6 +4,8 @@ import * as Webhooks from '@octokit/webhooks'
 import * as scramjet from 'scramjet'
 
 import { GitHub } from '@actions/github/lib/utils'
+import { PaginateInterface } from '@octokit/plugin-paginate-rest'
+import { RequestInterface } from '@octokit/types'
 
 import Config from './config'
 
@@ -11,6 +13,17 @@ interface Issue {
   issue_number: number
   owner: string
   repo: string
+}
+
+interface LabeledEvent {
+  event: string
+  label: {
+    name: string
+  }
+}
+
+interface LabeledEventResponse {
+  data: LabeledEvent[]
 }
 
 export default class NoResponse {
@@ -22,16 +35,19 @@ export default class NoResponse {
     this.octokit = github.getOctokit(this.config.token)
   }
 
-  async sweep() {
+  async sweep(): Promise<void> {
     core.debug('Starting sweep')
 
     await this.ensureLabelExists()
 
     const issues = await this.getCloseableIssues()
-    issues.forEach((issue) => this.close(issue))
+
+    for (const issue of issues) {
+      this.close(issue)
+    }
   }
 
-  async unmark() {
+  async unmark(): Promise<void> {
     core.debug('Starting unmark')
 
     const { responseRequiredLabel } = this.config
@@ -64,7 +80,7 @@ export default class NoResponse {
     }
   }
 
-  async close(issue: Issue) {
+  async close(issue: Issue): Promise<void> {
     const { closeComment } = this.config
 
     core.info(`${issue.owner}/${issue.repo}#${issue.issue_number} is being closed`)
@@ -73,35 +89,42 @@ export default class NoResponse {
       await this.octokit.issues.createComment({ body: closeComment, ...issue })
     }
 
-    return this.octokit.issues.update({ state: 'closed', ...issue })
+    await this.octokit.issues.update({ state: 'closed', ...issue })
   }
 
-  async ensureLabelExists() {
-    return this.octokit.issues
-      .getLabel({ name: this.config.responseRequiredLabel, ...this.config.repo })
-      .catch(() => {
-        this.octokit.issues.createLabel({
-          name: this.config.responseRequiredLabel,
-          color: this.config.responseRequiredColor,
-          ...this.config.repo
-        })
+  async ensureLabelExists(): Promise<void> {
+    try {
+      await this.octokit.issues.getLabel({
+        name: this.config.responseRequiredLabel,
+        ...this.config.repo
       })
+    } catch (e) {
+      this.octokit.issues.createLabel({
+        name: this.config.responseRequiredLabel,
+        color: this.config.responseRequiredColor,
+        ...this.config.repo
+      })
+    }
   }
 
-  async findLastLabeledEvent(owner: string, repo: string, number: number) {
+  async findLastLabeledEvent(
+    owner: string,
+    repo: string,
+    number: number
+  ): Promise<LabeledEvent | undefined> {
     const { responseRequiredLabel } = this.config
-    const events = await this.octokit.paginate(
-      this.octokit.issues.listEvents({
+    const events: LabeledEventResponse[] = await this.octokit.paginate(
+      ((await this.octokit.issues.listEvents({
         owner,
         repo,
         issue_number: number,
         per_page: 100
-      }) as any
+      })) as unknown) as RequestInterface<object>
     )
 
     return events[0].data
       .reverse()
-      .find((event: any) => event.event === 'labeled' && event.label.name === responseRequiredLabel)
+      .find((event) => event.event === 'labeled' && event.label.name === responseRequiredLabel)
   }
 
   async getCloseableIssues(): Promise<Issue[]> {
