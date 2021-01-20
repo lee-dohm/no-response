@@ -4,7 +4,6 @@ import * as Webhooks from '@octokit/webhooks'
 import * as scramjet from 'scramjet'
 
 import { GitHub } from '@actions/github/lib/utils'
-import { PaginateInterface } from '@octokit/plugin-paginate-rest'
 import { RequestInterface } from '@octokit/types'
 
 import Config from './config'
