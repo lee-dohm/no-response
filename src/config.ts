@@ -24,18 +24,14 @@ export default class Config {
 
   constructor() {
     this.closeComment =
-      core.getInput('closeComment') !== ''
-        ? core.getInput('closeComment')
-        : defaultCloseComment
+      core.getInput('closeComment') !== '' ? core.getInput('closeComment') : defaultCloseComment
 
     if (this.closeComment === 'false') {
       this.closeComment = undefined
     }
 
     this.daysUntilClose = parseInt(
-      core.getInput('daysUntilClose') !== ''
-        ? core.getInput('daysUntilClose')
-        : '14'
+      core.getInput('daysUntilClose') !== '' ? core.getInput('daysUntilClose') : '14'
     )
 
     this.repo = github.context.repo
@@ -50,6 +46,6 @@ export default class Config {
         ? core.getInput('responseRequiredLabel')
         : 'more-information-needed'
 
-    this.token = core.getInput('token', {required: true})
+    this.token = core.getInput('token', { required: true })
   }
 }

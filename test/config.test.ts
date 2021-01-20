@@ -27,9 +27,7 @@ describe('Config', () => {
       delete process.env.INPUT_CLOSECOMMENT
       const config = new Config()
 
-      expect(config.closeComment).toContain(
-        'This issue has been automatically closed'
-      )
+      expect(config.closeComment).toContain('This issue has been automatically closed')
     })
 
     it('initializes daysUntilClose with the integer value of the input', () => {
