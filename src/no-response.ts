@@ -99,7 +99,7 @@ export default class NoResponse {
         ...this.config.repo
       })
     } catch (e) {
-      this.octokit.issues.createLabel({
+      await this.octokit.issues.createLabel({
         name: this.config.responseRequiredLabel,
         color: this.config.responseRequiredColor,
         ...this.config.repo
