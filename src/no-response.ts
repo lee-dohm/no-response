@@ -8,7 +8,7 @@ import { RequestInterface } from '@octokit/types'
 
 import Config from './config'
 
-interface Issue {
+export interface Issue {
   issue_number: number
   owner: string
   repo: string

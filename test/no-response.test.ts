@@ -3,6 +3,22 @@ import nock from 'nock'
 import Config from '../src/config'
 import NoResponse from '../src/no-response'
 
+import { Issue } from '../src/no-response'
+
+function issueSplit(shortname: string): Issue {
+  const match = shortname.match(/([^/]+)\/([^#]+)#([0-9]+)/)
+
+  if (!match) {
+    throw new Error(`${shortname} does not match issue link pattern`)
+  }
+
+  return {
+    issue_number: Number.parseInt(match[3]),
+    owner: match[1],
+    repo: match[2]
+  }
+}
+
 describe('NoResponse', () => {
   let config: Config
   let n: nock.Scope
@@ -21,6 +37,26 @@ describe('NoResponse', () => {
     }
 
     n = nock('https://api.github.com')
+  })
+
+  describe('getCloseableIssues', () => {
+    it('returns an empty array if there are no open issues', async () => {
+      n.get('/search/issues')
+        .query({
+          q: 'repo:test-owner/test-repo is:issue is:open label:"test-label"',
+          sort: 'updated',
+          order: 'desc',
+          per_page: 30
+        })
+        .reply(200, { items: [] })
+
+      const noResponse = new NoResponse(config)
+
+      const issues = await noResponse.getCloseableIssues()
+
+      expect(n.isDone()).toBeTruthy()
+      expect(issues).toStrictEqual([])
+    })
   })
 
   describe('ensureLabelExists', () => {
