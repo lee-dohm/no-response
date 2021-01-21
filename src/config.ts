@@ -14,38 +14,53 @@ interface Repo {
   repo: string
 }
 
+/**
+ * Reads, interprets, and encapsulates the configuration for the current run of the Action.
+ */
 export default class Config {
+  /** Comment to use when closing an issue, if any. */
   closeComment: string | undefined
+
+  /** How old an issue should be in days before it gets closed. */
   daysUntilClose: number
+
+  /** Repository to operate on. */
   repo: Repo
+
+  /** Color to use when creating the label, encoded as a hex string. */
   responseRequiredColor: string
+
+  /** Name of the label to use for issues that need more information or clarification. */
   responseRequiredLabel: string
+
+  /** GitHub token to use when performing API operations. */
   token: string
 
   constructor() {
-    this.closeComment =
-      core.getInput('closeComment') !== '' ? core.getInput('closeComment') : defaultCloseComment
+    this.closeComment = this.valueOrDefault(core.getInput('closeComment'), defaultCloseComment)
 
     if (this.closeComment === 'false') {
       this.closeComment = undefined
     }
 
-    this.daysUntilClose = parseInt(
-      core.getInput('daysUntilClose') !== '' ? core.getInput('daysUntilClose') : '14'
-    )
+    this.daysUntilClose = parseInt(this.valueOrDefault(core.getInput('daysUntilClose'), '14'))
 
     this.repo = github.context.repo
 
-    this.responseRequiredColor =
-      core.getInput('responseRequiredColor') !== ''
-        ? core.getInput('responseRequiredColor')
-        : 'ffffff'
+    this.responseRequiredColor = this.valueOrDefault(
+      core.getInput('responseRequiredColor'),
+      'ffffff'
+    )
 
-    this.responseRequiredLabel =
-      core.getInput('responseRequiredLabel') !== ''
-        ? core.getInput('responseRequiredLabel')
-        : 'more-information-needed'
+    this.responseRequiredLabel = this.valueOrDefault(
+      core.getInput('responseRequiredLabel'),
+      'more-information-needed'
+    )
 
     this.token = core.getInput('token', { required: true })
+  }
+
+  valueOrDefault(value: string, defaultValue: string): string {
+    return value !== '' ? value : defaultValue
   }
 }
