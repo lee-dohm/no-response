@@ -7,6 +7,7 @@ import { GitHub } from '@actions/github/lib/utils'
 import { RequestInterface } from '@octokit/types'
 
 import Config from './config'
+import * as graphql from './graphql'
 
 interface Issue {
   issue_number: number
@@ -93,18 +94,13 @@ export default class NoResponse {
   }
 
   async ensureLabelExists(): Promise<void> {
-    try {
-      await this.octokit.issues.getLabel({
-        name: this.config.responseRequiredLabel,
-        ...this.config.repo
-      })
-    } catch (e) {
-      this.octokit.issues.createLabel({
-        name: this.config.responseRequiredLabel,
-        color: this.config.responseRequiredColor,
-        ...this.config.repo
-      })
-    }
+    const results = await this.octokit.graphql(graphql.text('query-matching-labels'), {
+      owner: this.config.repo.owner,
+      name: this.config.repo.repo,
+      query: this.config.responseRequiredLabel
+    })
+
+    core.info(JSON.stringify(results, null, 2))
   }
 
   async findLastLabeledEvent(issue: Issue): Promise<LabeledEvent | undefined> {

@@ -1,0 +1,10 @@
+query($owner: String!, $name: String!, $query: String) {
+  repository(owner: $owner, name: $name) {
+    labels(first: 100, query: $query) {
+      nodes {
+        color
+        name
+      }
+    }
+  }
+}
