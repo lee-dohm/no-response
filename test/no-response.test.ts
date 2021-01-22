@@ -24,7 +24,10 @@ describe('NoResponse', () => {
   let n: nock.Scope
 
   beforeEach(() => {
-    config = {
+    process.env['GITHUB_REPOSITORY'] = 'test-owner/test-repo'
+    process.env['INPUT_TOKEN'] = '1234567890abcdef'
+
+    config = Object.assign(new Config(), {
       closeComment: 'Close comment test',
       daysUntilClose: 365,
       repo: {
@@ -34,7 +37,7 @@ describe('NoResponse', () => {
       responseRequiredLabel: 'test-label',
       responseRequiredColor: 'c0ffee',
       token: '1234567890abcdef'
-    }
+    })
 
     n = nock('https://api.github.com')
   })
