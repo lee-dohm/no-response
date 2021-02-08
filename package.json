@@ -27,7 +27,7 @@
   "dependencies": {
     "@actions/core": "^1.2.6",
     "@actions/github": "^4.0.0",
-    "scramjet": "^4.35.10"
+    "scramjet": "^4.35.12"
   },
   "devDependencies": {
     "@octokit/webhooks": "^7.24.3",
