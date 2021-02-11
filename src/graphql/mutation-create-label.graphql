@@ -1,0 +1,7 @@
+mutation {
+  createLabel(input: { color: $color, name: $name, repositoryId: $repositoryId }) {
+    label {
+      name
+    }
+  }
+}
