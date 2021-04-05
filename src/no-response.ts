@@ -112,6 +112,7 @@ export default class NoResponse {
       })) as unknown) as RequestInterface<object>
     )
 
+    core.debug(`Events on Issue: ${JSON.stringify(issue)}`)
     core.debug(`Events => ${JSON.stringify(events, null, 2)}`)
 
     return events
@@ -132,6 +133,9 @@ export default class NoResponse {
       per_page: 30
     })
 
+    core.debug(`Issues to check for closing:`)
+    core.debug(JSON.stringify(issues, null, 2))
+
     const closableIssues = scramjet
       .fromArray(issues.data.items)
       .filter(async (issue) => {
@@ -149,6 +153,8 @@ export default class NoResponse {
         }
       })
       .toArray()
+
+    core.debug(`Closeable: ${JSON.stringify(closableIssues, null, 2)}`)
 
     return closableIssues
   }
