@@ -133,7 +133,7 @@ export default class NoResponse {
     core.debug(`Issues to check for closing:`)
     core.debug(JSON.stringify(issues, null, 2))
 
-    const closableIssues = scramjet
+    const closableIssues = await scramjet
       .fromArray(issues.data.items)
       .filter(async (issue) => {
         const event = await this.findLastLabeledEvent({
