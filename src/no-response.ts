@@ -116,6 +116,8 @@ export default class NoResponse {
       })) as unknown) as RequestInterface<object>
     )
 
+    core.debug(`Events => ${JSON.stringify(events, null, 2)}`)
+
     return events[0].data
       .reverse()
       .find((event) => event.event === 'labeled' && event.label.name === responseRequiredLabel)
