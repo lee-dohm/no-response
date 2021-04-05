@@ -22,6 +22,10 @@ interface LabeledEvent {
   }
 }
 
+interface RestIssue {
+  number: number
+}
+
 export default class NoResponse {
   config: Config
   octokit: InstanceType<typeof GitHub>
@@ -39,7 +43,7 @@ export default class NoResponse {
     const issues = await this.getCloseableIssues()
 
     for (const issue of issues) {
-      this.close(issue)
+      this.close({ issue_number: issue.number, ...this.config.repo })
     }
   }
 
@@ -117,7 +121,7 @@ export default class NoResponse {
       .find((event) => event.event === 'labeled' && event.label.name === responseRequiredLabel)
   }
 
-  async getCloseableIssues(): Promise<Issue[]> {
+  async getCloseableIssues(): Promise<RestIssue[]> {
     const { owner, repo } = this.config.repo
     const { daysUntilClose, responseRequiredLabel } = this.config
     const q = `repo:${owner}/${repo} is:issue is:open label:"${responseRequiredLabel}"`
