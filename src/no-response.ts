@@ -112,9 +112,6 @@ export default class NoResponse {
       })) as unknown) as RequestInterface<object>
     )
 
-    core.debug(`Events on Issue: ${JSON.stringify(issue)}`)
-    core.debug(`Events => ${JSON.stringify(events, null, 2)}`)
-
     return events
       .reverse()
       .find((event) => event.event === 'labeled' && event.label.name === responseRequiredLabel)
@@ -143,6 +140,9 @@ export default class NoResponse {
           issue_number: issue.number,
           ...this.config.repo
         })
+
+        core.debug(`Checking: ${JSON.stringify(issue, null, 2)}`)
+        core.debug(`Using: ${JSON.stringify(event, null, 2)}`)
 
         if (event) {
           const creationDate = new Date(event.created_at)
