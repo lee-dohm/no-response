@@ -1,9 +1,9 @@
 import * as core from '@actions/core'
 import * as github from '@actions/github'
-import * as Webhooks from '@octokit/webhooks'
 import * as scramjet from 'scramjet'
 
 import { GitHub } from '@actions/github/lib/utils'
+import { IssueCommentEvent } from '@octokit/webhooks-definitions/schema'
 import { RequestInterface } from '@octokit/types'
 
 import Config from './config'
@@ -51,7 +51,7 @@ export default class NoResponse {
     core.debug('Starting unmark')
 
     const { responseRequiredLabel } = this.config
-    const payload: Webhooks.EventPayloads.WebhookPayloadIssueComment = this.octokit.context.payload
+    const payload: IssueCommentEvent = this.octokit.context.payload
     const owner = payload.repository.owner.login
     const repo = payload.repository.name
     const { number } = payload.issue
