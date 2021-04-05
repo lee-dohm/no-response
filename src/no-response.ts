@@ -3,7 +3,7 @@ import * as github from '@actions/github'
 import * as scramjet from 'scramjet'
 
 import { GitHub } from '@actions/github/lib/utils'
-import { IssueCommentEvent } from "@octokit/webhooks-definitions/schema"
+import { IssueCommentEvent } from '@octokit/webhooks-definitions/schema'
 import { RequestInterface } from '@octokit/types'
 
 import Config from './config'
