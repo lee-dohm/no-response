@@ -22,10 +22,6 @@ interface LabeledEvent {
   }
 }
 
-interface LabeledEventResponse {
-  data: LabeledEvent[]
-}
-
 export default class NoResponse {
   config: Config
   octokit: InstanceType<typeof GitHub>
@@ -109,7 +105,7 @@ export default class NoResponse {
 
   async findLastLabeledEvent(issue: Issue): Promise<LabeledEvent | undefined> {
     const { responseRequiredLabel } = this.config
-    const events: LabeledEventResponse[] = await this.octokit.paginate(
+    const events: LabeledEvent[] = await this.octokit.paginate(
       ((await this.octokit.issues.listEvents({
         ...issue,
         per_page: 100
@@ -118,7 +114,7 @@ export default class NoResponse {
 
     core.debug(`Events => ${JSON.stringify(events, null, 2)}`)
 
-    return events[0].data
+    return events
       .reverse()
       .find((event) => event.event === 'labeled' && event.label.name === responseRequiredLabel)
   }
