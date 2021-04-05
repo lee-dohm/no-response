@@ -147,6 +147,10 @@ export default class NoResponse {
         if (event) {
           const creationDate = new Date(event.created_at)
 
+          core.debug(
+            `${creationDate} < ${labeledEarlierThan} === ${creationDate < labeledEarlierThan}`
+          )
+
           return creationDate < labeledEarlierThan
         } else {
           return false
