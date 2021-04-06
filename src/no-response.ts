@@ -148,20 +148,22 @@ export default class NoResponse {
           ...this.config.repo
         })
 
+        if (!event) {
+          return false
+        }
+
         core.debug(`Checking: ${JSON.stringify(issue, null, 2)}`)
         core.debug(`Using: ${JSON.stringify(event, null, 2)}`)
 
-        if (event) {
-          const creationDate = new Date(event.created_at)
+        const creationDate = new Date(event.created_at)
 
-          core.debug(
-            `${creationDate} < ${labeledEarlierThan} === ${creationDate < labeledEarlierThan}`
-          )
+        core.debug(
+          `${creationDate.toISOString()} < ${labeledEarlierThan.toISOString()} === ${
+            creationDate < labeledEarlierThan
+          }`
+        )
 
-          return creationDate < labeledEarlierThan
-        } else {
-          return false
-        }
+        return creationDate < labeledEarlierThan
       })
       .toArray()
 
