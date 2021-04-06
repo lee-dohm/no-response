@@ -149,7 +149,7 @@ export default class NoResponse {
         })
 
         if (!event) {
-          return  false
+          return false
         }
 
         core.debug(`Checking: ${JSON.stringify(issue, null, 2)}`)
@@ -158,7 +158,9 @@ export default class NoResponse {
         const creationDate = new Date(event.created_at)
 
         core.debug(
-          `${creationDate} < ${labeledEarlierThan} === ${creationDate < labeledEarlierThan}`
+          `${creationDate.toISOString()} < ${labeledEarlierThan.toISOString()} === ${
+            creationDate < labeledEarlierThan
+          }`
         )
 
         return creationDate < labeledEarlierThan
