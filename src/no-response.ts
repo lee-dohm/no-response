@@ -1,4 +1,5 @@
 import * as core from '@actions/core'
+import * as fs from 'fs'
 import * as github from '@actions/github'
 import * as scramjet from 'scramjet'
 
@@ -7,6 +8,8 @@ import { IssueCommentEvent } from '@octokit/webhooks-definitions/schema'
 import { RequestInterface } from '@octokit/types'
 
 import Config from './config'
+
+const fsp = fs.promises
 
 interface Issue {
   issue_number: number
@@ -51,7 +54,7 @@ export default class NoResponse {
     core.debug('Starting unmark')
 
     const { responseRequiredLabel } = this.config
-    const payload: IssueCommentEvent = this.octokit.context.payload
+    const payload: IssueCommentEvent = await this.readPayload()
     const owner = payload.repository.owner.login
     const repo = payload.repository.name
     const { number } = payload.issue
@@ -171,6 +174,16 @@ export default class NoResponse {
     const labels = await this.octokit.issues.listLabelsOnIssue({ ...issue })
 
     return labels.data.map((label) => label.name).includes(this.config.responseRequiredLabel)
+  }
+
+  async readPayload(): Promise<IssueCommentEvent> {
+    if (!process.env.GITHUB_EVENT_PATH) {
+      throw new Error('GITHUB_EVENT_PATH is not defined')
+    }
+
+    const text = (await fsp.readFile(process.env.GITHUB_EVENT_PATH)).toString()
+
+    return JSON.parse(text)
   }
 
   since(days: number): Date {
