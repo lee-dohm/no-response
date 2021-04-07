@@ -1,13 +1,11 @@
 import * as core from '@actions/core'
 import * as fs from 'fs'
-import * as github from '@actions/github'
 import * as scramjet from 'scramjet'
 
-import { GitHub } from '@actions/github/lib/utils'
 import { IssueCommentEvent } from '@octokit/webhooks-definitions/schema'
-import { RequestInterface } from '@octokit/types'
 
 import Config from './config'
+import GitHub from './github'
 
 const fsp = fs.promises
 
@@ -18,24 +16,24 @@ interface Issue {
 }
 
 interface LabeledEvent {
-  created_at: number
+  created_at: string
   event: string
-  label: {
+  label?: {
     name: string
   }
 }
 
-interface RestIssue {
+interface IssueNumber {
   number: number
 }
 
 export default class NoResponse {
   config: Config
-  octokit: InstanceType<typeof GitHub>
+  github: GitHub
 
   constructor(config: Config) {
     this.config = config
-    this.octokit = github.getOctokit(this.config.token)
+    this.github = new GitHub(this.config.token)
   }
 
   async sweep(): Promise<void> {
@@ -57,20 +55,20 @@ export default class NoResponse {
     const payload: IssueCommentEvent = await this.readPayload()
     const owner = payload.repository.owner.login
     const repo = payload.repository.name
-    const { number } = payload.issue
+    const { number: issue_number } = payload.issue
     const comment = payload.comment
-    const issue = { owner, repo, issue_number: number }
+    const issue = { owner, repo, issue_number }
 
-    const issueInfo = await this.octokit.issues.get(issue)
+    const issueInfo = await this.github.getIssue(issue)
     const isMarked = await this.hasResponseRequiredLabel(issue)
 
     if (isMarked && issueInfo.data.user?.login === comment.user.login) {
-      core.info(`${owner}/${repo}#${number} is being unmarked`)
+      core.info(`${owner}/${repo}#${issue_number} is being unmarked`)
 
-      await this.octokit.issues.removeLabel({
+      await this.github.removeIssueLabel({
         owner,
         repo,
-        issue_number: number,
+        issue_number,
         name: responseRequiredLabel
       })
 
@@ -78,7 +76,7 @@ export default class NoResponse {
         issueInfo.data.state === 'closed' &&
         issueInfo.data.user.login !== issueInfo.data.closed_by?.login
       ) {
-        this.octokit.issues.update({ owner, repo, issue_number: number, state: 'open' })
+        this.github.reopenIssue({ owner, repo, issue_number })
       }
     }
   }
@@ -89,20 +87,20 @@ export default class NoResponse {
     core.info(`${issue.owner}/${issue.repo}#${issue.issue_number} is being closed`)
 
     if (closeComment) {
-      await this.octokit.issues.createComment({ body: closeComment, ...issue })
+      await this.github.createIssueComment({ body: closeComment, ...issue })
     }
 
-    await this.octokit.issues.update({ state: 'closed', ...issue })
+    await this.github.closeIssue({ ...issue })
   }
 
   async ensureLabelExists(): Promise<void> {
     try {
-      await this.octokit.issues.getLabel({
+      await this.github.getLabel({
         name: this.config.responseRequiredLabel,
         ...this.config.repo
       })
     } catch (e) {
-      this.octokit.issues.createLabel({
+      await this.github.createLabel({
         name: this.config.responseRequiredLabel,
         color: this.config.responseRequiredColor,
         ...this.config.repo
@@ -112,25 +110,20 @@ export default class NoResponse {
 
   async findLastLabeledEvent(issue: Issue): Promise<LabeledEvent | undefined> {
     const { responseRequiredLabel } = this.config
-    const events: LabeledEvent[] = await this.octokit.paginate(
-      ((await this.octokit.issues.listEvents({
-        ...issue,
-        per_page: 100
-      })) as unknown) as RequestInterface<object>
-    )
+    const events: LabeledEvent[] = await this.github.listIssueEvents({ ...issue })
 
     return events
       .reverse()
-      .find((event) => event.event === 'labeled' && event.label.name === responseRequiredLabel)
+      .find((event) => event.event === 'labeled' && event.label?.name === responseRequiredLabel)
   }
 
-  async getCloseableIssues(): Promise<RestIssue[]> {
+  async getCloseableIssues(): Promise<IssueNumber[]> {
     const { owner, repo } = this.config.repo
     const { daysUntilClose, responseRequiredLabel } = this.config
     const q = `repo:${owner}/${repo} is:issue is:open label:"${responseRequiredLabel}"`
     const labeledEarlierThan = this.since(daysUntilClose)
 
-    const issues = await this.octokit.search.issuesAndPullRequests({
+    const issues = await this.github.searchIssuesAndPullRequests({
       q,
       sort: 'updated',
       order: 'desc',
@@ -155,15 +148,15 @@ export default class NoResponse {
         core.debug(`Checking: ${JSON.stringify(issue, null, 2)}`)
         core.debug(`Using: ${JSON.stringify(event, null, 2)}`)
 
-        const creationDate = new Date(event.created_at)
+        const labeledDate = new Date(event.created_at)
 
         core.debug(
-          `${creationDate.toISOString()} < ${labeledEarlierThan.toISOString()} === ${
-            creationDate < labeledEarlierThan
+          `${labeledDate.toISOString()} < ${labeledEarlierThan.toISOString()} === ${
+            labeledDate < labeledEarlierThan
           }`
         )
 
-        return creationDate < labeledEarlierThan
+        return labeledDate < labeledEarlierThan
       })
       .toArray()
 
@@ -173,7 +166,7 @@ export default class NoResponse {
   }
 
   async hasResponseRequiredLabel(issue: Issue): Promise<boolean> {
-    const labels = await this.octokit.issues.listLabelsOnIssue({ ...issue })
+    const labels = await this.github.listLabelsOnIssue({ ...issue })
 
     return labels.data.map((label) => label.name).includes(this.config.responseRequiredLabel)
   }
