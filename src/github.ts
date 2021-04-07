@@ -1,40 +1,38 @@
-import * as github from '@actions/github'
-
-import { GitHub as GitHubType } from '@actions/github/lib/utils'
 import {
   GetResponseTypeFromEndpointMethod,
-  GetResponseDataTypeFromEndpointMethod,
-  RequestInterface
+  GetResponseDataTypeFromEndpointMethod
 } from '@octokit/types'
 
 import { Octokit } from '@octokit/rest'
 
 const octokit = new Octokit()
 
-type CreateIssueCommentParams = { body: string } & Issue
-type CreateLabelParams = { color: string; name: string } & Repo
-type GetIssueResponse = GetResponseTypeFromEndpointMethod<typeof octokit.issues.get>
-type GetLabelParams = { name: string } & Repo
-type Issue = { issue_number: number } & Repo
+export type CreateIssueCommentParams = { body: string } & Issue
+export type CreateLabelParams = { color: string; name: string } & Repo
+export type GetIssueResponse = GetResponseTypeFromEndpointMethod<typeof octokit.issues.get>
+export type GetLabelParams = { name: string } & Repo
+export type Issue = { issue_number: number } & Repo
 
-type ListIssueEventsData = GetResponseDataTypeFromEndpointMethod<typeof octokit.issues.listEvents>
+export type ListIssueEventsData = GetResponseDataTypeFromEndpointMethod<
+  typeof octokit.issues.listEvents
+>
 
-type ListLabelsOnIssueResponse = GetResponseTypeFromEndpointMethod<
+export type ListLabelsOnIssueResponse = GetResponseTypeFromEndpointMethod<
   typeof octokit.issues.listLabelsOnIssue
 >
 
-type RemoveIssueLabelParams = { name: string } & Issue
+export type RemoveIssueLabelParams = { name: string } & Issue
 
-type SearchIssuesAndPullRequestsResponse = GetResponseTypeFromEndpointMethod<
+export type SearchIssuesAndPullRequestsResponse = GetResponseTypeFromEndpointMethod<
   typeof octokit.search.issuesAndPullRequests
 >
 
-interface Repo {
+export interface Repo {
   owner: string
   repo: string
 }
 
-interface SearchIssuesAndPullRequestsParams {
+export interface SearchIssuesAndPullRequestsParams {
   order?: 'desc' | 'asc'
   per_page: number
   q: string
@@ -53,57 +51,17 @@ interface SearchIssuesAndPullRequestsParams {
     | undefined
 }
 
-export default class GitHub {
-  octokit: InstanceType<typeof GitHubType>
-
-  constructor(token: string) {
-    this.octokit = github.getOctokit(token)
-  }
-
-  async closeIssue(params: Issue): Promise<void> {
-    this.octokit.issues.update({ state: 'closed', ...params })
-  }
-
-  async createIssueComment(params: CreateIssueCommentParams): Promise<void> {
-    this.octokit.issues.createComment({ ...params })
-  }
-
-  async createLabel(params: CreateLabelParams): Promise<void> {
-    this.octokit.issues.createLabel({ ...params })
-  }
-
-  async getIssue(params: Issue): Promise<GetIssueResponse> {
-    return this.octokit.issues.get({ ...params })
-  }
-
-  async getLabel(params: GetLabelParams): Promise<void> {
-    this.octokit.issues.getLabel({ ...params })
-  }
-
-  async listIssueEvents(params: Issue): Promise<ListIssueEventsData> {
-    return this.octokit.paginate(
-      ((await this.octokit.issues.listEvents({
-        ...params,
-        per_page: 100
-      })) as unknown) as RequestInterface<object>
-    )
-  }
-
-  async listLabelsOnIssue(params: Issue): Promise<ListLabelsOnIssueResponse> {
-    return this.octokit.issues.listLabelsOnIssue({ ...params })
-  }
-
-  async removeIssueLabel(params: RemoveIssueLabelParams): Promise<void> {
-    this.octokit.issues.removeLabel({ ...params })
-  }
-
-  async reopenIssue(params: Issue): Promise<void> {
-    this.octokit.issues.update({ state: 'open', ...params })
-  }
-
-  async searchIssuesAndPullRequests(
+export abstract class GitHub {
+  abstract closeIssue(params: Issue): Promise<void>
+  abstract createIssueComment(params: CreateIssueCommentParams): Promise<void>
+  abstract createLabel(params: CreateLabelParams): Promise<void>
+  abstract getIssue(params: Issue): Promise<GetIssueResponse>
+  abstract getLabel(params: GetLabelParams): Promise<void>
+  abstract listIssueEvents(params: Issue): Promise<ListIssueEventsData>
+  abstract listLabelsOnIssue(params: Issue): Promise<ListLabelsOnIssueResponse>
+  abstract removeIssueLabel(params: RemoveIssueLabelParams): Promise<void>
+  abstract reopenIssue(params: Issue): Promise<void>
+  abstract searchIssuesAndPullRequests(
     params: SearchIssuesAndPullRequestsParams
-  ): Promise<SearchIssuesAndPullRequestsResponse> {
-    return this.octokit.search.issuesAndPullRequests({ ...params })
-  }
+  ): Promise<SearchIssuesAndPullRequestsResponse>
 }

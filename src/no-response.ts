@@ -5,15 +5,10 @@ import * as scramjet from 'scramjet'
 import { IssueCommentEvent } from '@octokit/webhooks-definitions/schema'
 
 import Config from './config'
-import GitHub from './github'
+import { GitHub, Issue } from './github'
+import GitHubRest from './github-rest'
 
 const fsp = fs.promises
-
-interface Issue {
-  issue_number: number
-  owner: string
-  repo: string
-}
 
 interface LabeledEvent {
   created_at: string
@@ -33,7 +28,7 @@ export default class NoResponse {
 
   constructor(config: Config) {
     this.config = config
-    this.github = new GitHub(this.config.token)
+    this.github = new GitHubRest(this.config.token)
   }
 
   async sweep(): Promise<void> {
