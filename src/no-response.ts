@@ -1,5 +1,5 @@
 import * as core from '@actions/core'
-import * as fs from 'fs'
+import { promises as fsp } from 'fs'
 import * as scramjet from 'scramjet'
 
 import { IssueCommentEvent } from '@octokit/webhooks-definitions/schema'
@@ -7,8 +7,6 @@ import { IssueCommentEvent } from '@octokit/webhooks-definitions/schema'
 import Config from './config'
 import { GitHub, Issue } from './github'
 import GitHubRest from './github-rest'
-
-const fsp = fs.promises
 
 interface LabeledEvent {
   created_at: string
