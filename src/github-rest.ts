@@ -1,6 +1,6 @@
 import * as github from '@actions/github'
 
-import { GitHub as GitHubType } from '@actions/github/lib/utils'
+import { GitHub as Octokit } from '@actions/github/lib/utils'
 import { RequestInterface } from '@octokit/types'
 
 import {
@@ -18,7 +18,7 @@ import {
 } from './github'
 
 export default class GitHubRest implements GitHub {
-  octokit: InstanceType<typeof GitHubType>
+  octokit: InstanceType<typeof Octokit>
 
   constructor(token: string) {
     this.octokit = github.getOctokit(token)
