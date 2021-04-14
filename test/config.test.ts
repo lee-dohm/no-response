@@ -1,5 +1,3 @@
-import * as core from '@actions/core'
-
 import Config from '../src/config'
 
 describe('Config', () => {
