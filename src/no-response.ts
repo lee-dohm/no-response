@@ -24,9 +24,9 @@ export default class NoResponse {
   config: Config
   github: GitHub
 
-  constructor(config: Config) {
+  constructor(config: Config, github?: GitHub) {
     this.config = config
-    this.github = new GitHubRest(this.config.token)
+    this.github = github || new GitHubRest(this.config.token)
   }
 
   async sweep(): Promise<void> {
