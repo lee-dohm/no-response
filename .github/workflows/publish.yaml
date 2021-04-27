@@ -15,7 +15,5 @@ jobs:
       - run: npm ci
       - run: npm run build
       - uses: JasonEtco/build-and-tag-action@v2
-        with:
-          setup: ''
         env:
           GITHUB_TOKEN: ${{ github.token }}
