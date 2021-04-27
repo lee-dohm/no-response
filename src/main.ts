@@ -1,7 +1,7 @@
 import * as core from '@actions/core'
 
 import Config from './config'
-import NoResponse from './no-response'
+import { NoResponse } from './no-response'
 
 async function run(): Promise<void> {
   try {

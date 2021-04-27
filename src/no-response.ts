@@ -8,7 +8,7 @@ import Config from './config'
 import { GitHub, Issue } from './github'
 import GitHubRest from './github-rest'
 
-interface LabeledEvent {
+export interface LabeledEvent {
   created_at: string
   event: string
   label?: {
@@ -20,7 +20,7 @@ interface IssueNumber {
   number: number
 }
 
-export default class NoResponse {
+export class NoResponse {
   config: Config
   github: GitHub
 

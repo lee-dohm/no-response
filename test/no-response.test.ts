@@ -1,7 +1,7 @@
-import { getConfigFileParsingDiagnostics } from 'typescript'
 import Config from '../src/config'
+import { Issue, ListIssueEventsData } from '../src/github'
 import GitHubRest from '../src/github-rest'
-import NoResponse from '../src/no-response'
+import { LabeledEvent, NoResponse } from '../src/no-response'
 
 jest.mock('../src/github-rest')
 
@@ -30,6 +30,7 @@ describe('NoResponse', () => {
         name: config.responseRequiredLabel,
         ...config.repo
       })
+
       expect(mockGitHub.createLabel).not.toHaveBeenCalled()
     })
 
@@ -38,19 +39,67 @@ describe('NoResponse', () => {
         throw new Error('getLabel fails')
       })
 
-      noResponse.ensureLabelExists()
+      await noResponse.ensureLabelExists()
 
       expect(mockGitHub.getLabel).toHaveBeenCalledTimes(1)
       expect(mockGitHub.getLabel).toHaveBeenCalledWith({
         name: config.responseRequiredLabel,
         ...config.repo
       })
+
       expect(mockGitHub.createLabel).toHaveBeenCalledTimes(1)
       expect(mockGitHub.createLabel).toHaveBeenCalledWith({
         name: config.responseRequiredLabel,
         color: config.responseRequiredColor,
         ...config.repo
       })
+    })
+  })
+
+  describe('findLastLabeledEvent', () => {
+    let matchingEvent: LabeledEvent
+    let testIssue: Issue
+
+    beforeEach(() => {
+      matchingEvent = {
+        created_at: '5',
+        event: 'labeled',
+        label: {
+          name: config.responseRequiredLabel
+        }
+      }
+
+      testIssue = {
+        issue_number: 123,
+        owner: 'test-owner',
+        repo: 'test-repo'
+      }
+    })
+
+    it('returns undefined if no events are returned', async () => {
+      mockGitHub.listIssueEvents = jest.fn(async () => {
+        return []
+      })
+
+      const event = await noResponse.findLastLabeledEvent(testIssue)
+
+      expect(mockGitHub.listIssueEvents).toHaveBeenCalledTimes(1)
+      expect(mockGitHub.listIssueEvents).toHaveBeenCalledWith({...testIssue})
+
+      expect(event).toBeUndefined()
+    })
+
+    it('returns the only matching event if one exists', async () => {
+      mockGitHub.listIssueEvents = jest.fn(async () => {
+        return [ matchingEvent ] as unknown as ListIssueEventsData
+      })
+
+      const event = await noResponse.findLastLabeledEvent(testIssue)
+
+      expect(mockGitHub.listIssueEvents).toHaveBeenCalledTimes(1)
+      expect(mockGitHub.listIssueEvents).toHaveBeenCalledWith({...testIssue})
+
+      expect(event).toEqual(matchingEvent)
     })
   })
 })
