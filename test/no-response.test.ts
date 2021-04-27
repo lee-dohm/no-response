@@ -84,20 +84,20 @@ describe('NoResponse', () => {
       const event = await noResponse.findLastLabeledEvent(testIssue)
 
       expect(mockGitHub.listIssueEvents).toHaveBeenCalledTimes(1)
-      expect(mockGitHub.listIssueEvents).toHaveBeenCalledWith({...testIssue})
+      expect(mockGitHub.listIssueEvents).toHaveBeenCalledWith({ ...testIssue })
 
       expect(event).toBeUndefined()
     })
 
     it('returns the only matching event if one exists', async () => {
       mockGitHub.listIssueEvents = jest.fn(async () => {
-        return [ matchingEvent ] as unknown as ListIssueEventsData
+        return ([matchingEvent] as unknown) as ListIssueEventsData
       })
 
       const event = await noResponse.findLastLabeledEvent(testIssue)
 
       expect(mockGitHub.listIssueEvents).toHaveBeenCalledTimes(1)
-      expect(mockGitHub.listIssueEvents).toHaveBeenCalledWith({...testIssue})
+      expect(mockGitHub.listIssueEvents).toHaveBeenCalledWith({ ...testIssue })
 
       expect(event).toEqual(matchingEvent)
     })

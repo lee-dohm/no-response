@@ -2,7 +2,7 @@ import * as core from '@actions/core'
 import { promises as fsp } from 'fs'
 import * as scramjet from 'scramjet'
 
-import { IssueCommentEvent } from '@octokit/webhooks-definitions/schema'
+import { IssueCommentEvent } from '@octokit/webhooks-types'
 
 import Config from './config'
 import { GitHub, Issue } from './github'
