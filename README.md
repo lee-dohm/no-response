@@ -13,7 +13,7 @@ name: No Response
 # to work properly.
 on:
   issue_comment:
-    types: created
+    types: [created]
   schedule:
     # Schedule for five minutes after the hour, every hour
     - cron: '5 * * * *'
