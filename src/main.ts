@@ -11,9 +11,9 @@ async function run(): Promise<void> {
     const noResponse = new NoResponse(config)
 
     if (eventName === 'schedule') {
-      noResponse.sweep()
+      noResponse.checkForCloseableIssues()
     } else if (eventName === 'issue_comment') {
-      noResponse.unmark()
+      noResponse.checkForClearableState()
     } else {
       core.error(`Unrecognized event: ${eventName}`)
     }
