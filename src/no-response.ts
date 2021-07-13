@@ -113,10 +113,10 @@ export default class NoResponse {
   async findLastLabeledEvent(issue: Issue): Promise<LabeledEvent | undefined> {
     const { responseRequiredLabel } = this.config
     const events: LabeledEvent[] = await this.octokit.paginate(
-      ((await this.octokit.issues.listEvents({
+      (await this.octokit.issues.listEvents({
         ...issue,
         per_page: 100
-      })) as unknown) as RequestInterface<object>
+      })) as unknown as RequestInterface<object>
     )
 
     return events
