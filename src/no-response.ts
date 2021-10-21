@@ -133,7 +133,7 @@ export default class NoResponse {
     const issues = await this.octokit.search.issuesAndPullRequests({
       q,
       sort: 'updated',
-      order: 'desc',
+      order: 'asc',
       per_page: 30
     })
 
