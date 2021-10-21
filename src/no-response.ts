@@ -3,11 +3,13 @@ import * as fs from 'fs'
 import * as github from '@actions/github'
 import * as scramjet from 'scramjet'
 
+import Config from './config'
 import { GitHub } from '@actions/github/lib/utils'
+
+/* eslint-disable import/no-unresolved, import/named */
 import { IssueCommentEvent } from '@octokit/webhooks-types'
 import { RequestInterface } from '@octokit/types'
-
-import Config from './config'
+/* eslint-enable */
 
 const fsp = fs.promises
 
