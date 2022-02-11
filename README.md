@@ -23,8 +23,6 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: lee-dohm/no-response@v0.5.0
-        with:
-          token: ${{ github.token }}
 ```
 
 ### Inputs
@@ -35,7 +33,7 @@ See [`action.yml`](action.yml) for defaults.
 - `daysUntilClose` &mdash; Number of days to wait for a response from the original author before closing.
 - `responseRequiredColor` &mdash; Color for the `responseRequiredLabel`. **Only** used when creating the label if it does not already exist.
 - `responseRequiredLabel` &mdash; Text of the label used to indicate that a response from the original author is required.
-- `token` &mdash; Token used to access repo information. The default GitHub Actions token is sufficient.
+- `token` &mdash; Token used to access repo information. The default GitHub Actions token is sufficient. Defaults to `github.token`.
 
 ### Outputs
 
