@@ -57,7 +57,7 @@ export default class Config {
       'more-information-needed'
     )
 
-    this.token = core.getInput('token', { required: true })
+    this.token = core.getInput('token')
   }
 
   valueOrDefault(value: string, defaultValue: string): string {
