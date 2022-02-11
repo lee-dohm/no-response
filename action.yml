@@ -20,7 +20,8 @@ inputs:
     default: more-information-needed
   token:
     description: Token to access the GitHub API
-    required: true
+    required: false
+    default: ${{ github.token }}
 runs:
   using: node12
   main: 'dist/index.js'
