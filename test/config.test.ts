@@ -84,13 +84,5 @@ describe('Config', () => {
 
       expect(config.token).toEqual('123456789abcdef')
     })
-
-    it('raises an error if no token is given', () => {
-      delete process.env.INPUT_TOKEN
-
-      expect(() => {
-        new Config()
-      }).toThrow()
-    })
   })
 })
