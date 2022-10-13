@@ -22,5 +22,5 @@ inputs:
     description: Token to access the GitHub API
     required: true
 runs:
-  using: node12
+  using: node16
   main: 'dist/index.js'
