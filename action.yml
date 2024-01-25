@@ -11,16 +11,17 @@ inputs:
       that we can investigate further.
   daysUntilClose:
     description: Number of days of inactivity before an Issue is closed for lack of response
-    default: 14
+    default: '14'
   responseRequiredColor:
     description: Color for the `responseRequiredLabel`
-    default: ffffff
+    default: 'ffffff'
   responseRequiredLabel:
     description: Label indicating that a response from the original author is required
-    default: more-information-needed
+    default: 'more-information-needed'
   token:
     description: Token to access the GitHub API
-    required: true
+    required: false
+    default: ${{ github.token }}
 runs:
-  using: node12
+  using: node20
   main: 'dist/index.js'
