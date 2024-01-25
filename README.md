@@ -56,7 +56,7 @@ At the scheduled times, it searches for issues that are:
 For each issue found, it:
 
 1. If `closeComment` is not `false`, posts the contents of `closeComment`
-1. Closes the issue
+2. Closes the issue
 
 ### `issue_comment` Event
 
@@ -68,7 +68,11 @@ When an `issue_comment` event is received, if all of the following are true:
 It will:
 
 1. Remove the `responseRequiredLabel`
-1. Reopen the issue if it was closed by someone other than the original author of the issue
+2. Reopen the issue if it was closed by someone other than the original author of the issue
+
+## Contributing
+
+For API help, see https://octokit.github.io/rest.js/v20
 
 ## License
 

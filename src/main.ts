@@ -10,14 +10,16 @@ async function run(): Promise<void> {
     const config = new Config()
     const noResponse = new NoResponse(config)
 
-    if (eventName === 'schedule') {
-      noResponse.sweep()
+    core.info(`Triggered via event: ${eventName}`)
+
+    if (eventName === 'schedule' || eventName === 'workflow_dispatch') {
+      await noResponse.sweep()
     } else if (eventName === 'issue_comment') {
-      noResponse.unmark()
+      await noResponse.unmark()
     } else {
       core.error(`Unrecognized event: ${eventName}`)
     }
-  } catch (error) {
+  } catch (error: any) {
     core.setFailed(error.message)
   }
 }
